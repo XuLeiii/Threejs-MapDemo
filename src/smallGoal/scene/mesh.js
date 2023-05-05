@@ -66,6 +66,8 @@ loaderfile.setResponseType("json");
 //   // });
 
 // });
+
+//1.线框图/文字
 loaderfile.load("/smallGoal/GeoJson/安徽省线框.json", async (data) => {
   //边框
   data.features.forEach(async (item) => {
@@ -97,20 +99,16 @@ loaderfile.load("/smallGoal/GeoJson/安徽省线框.json", async (data) => {
   });
   group.add(linegroup, labelgroup);
 });
-loaderfile.load("/smallGoal/GeoJson/安徽省立体.json", async (data) => {
+//2.立体图
+loaderfile.load("/smallGoal/GeoJson/安徽省线框.json", async (data) => {
   data.features.forEach(async (item) => {
     let vector2Arr = [];
     let shapeArr = [];
-    let c = [];
-    if (item.geometry.type === "Polygon") {
-      item.geometry.coordinates = [item.geometry.coordinates];
-    }
     //立体图
     const coordinatesArr = item.geometry.coordinates[0][0];
     // console.log("coordinatesArr", coordinatesArr);
     await coordinatesArr.forEach((item) => {
       let xy = lon2xy(item[0], item[1]);
-      c.push(xy.x, xy.y);
       vector2Arr.push(new THREE.Vector2(xy.x, xy.y));
     });
     // console.log("c", c);
@@ -131,7 +129,22 @@ loaderfile.load("/smallGoal/GeoJson/安徽省立体.json", async (data) => {
     });
     const shapeMesh = new THREE.Mesh(ShapeGeometry, [material1, material2]);
     meshgroup.add(shapeMesh);
-    box3Compute(meshgroup);
+  });
+  box3Compute(meshgroup);
+  group.add(meshgroup);
+});
+//边缘特效图
+loaderfile.load("/smallGoal/GeoJson/安徽省立体.json", async (data) => {
+  data.features.forEach(async (item) => {
+    let c = [];
+    if (item.geometry.type === "Polygon") {
+      item.geometry.coordinates = [item.geometry.coordinates];
+    }
+    const coordinatesArr = item.geometry.coordinates[0][0];
+    await coordinatesArr.forEach((item) => {
+      let xy = lon2xy(item[0], item[1]);
+      c.push(xy.x, xy.y);
+    });
     //轮廓图
     var geometry = new THREE.BufferGeometry(); //声明一个空几何体对象
     var posArr = [];
@@ -152,7 +165,6 @@ loaderfile.load("/smallGoal/GeoJson/安徽省立体.json", async (data) => {
       );
       // 三角形2  三个顶点坐标
       posArr.push(c[i], c[i + 1], 0, c[i + 2], c[i + 3], h, c[i], c[i + 1], h);
-
       // 注意顺序问题，和顶点位置坐标对应
       uvrr.push(
         i / c.length,
@@ -205,7 +217,8 @@ loaderfile.load("/smallGoal/GeoJson/安徽省立体.json", async (data) => {
     // }
     // flowAnimation();
   });
-  group.add(meshgroup, sidegroup);
+  group.add(sidegroup);
 });
+console.log("meshgroup", meshgroup);
 // console.log("group", group);
-export { group };
+export { group, meshgroup };
